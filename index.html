@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎯 Tournoi Mölkky</title>
+<style>
+  :root {
+    --green: #2d6a4f;
+    --green-light: #52b788;
+    --green-pale: #d8f3dc;
+    --wood: #8b5e3c;
+    --wood-light: #c9a87c;
+    --wood-pale: #f5ebe0;
+    --bg: #f8f4ef;
+    --surface: #ffffff;
+    --surface2: #f1ede8;
+    --border: #ddd6ce;
+    --text: #1a1a18;
+    --text-muted: #6b6560;
+    --red: #c1440e;
+    --red-pale: #fde8df;
+    --blue: #1a5c8a;
+    --blue-pale: #ddeef9;
+    --gold: #b8860b;
+    --gold-pale: #fef9e7;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--green);
+    color: white;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-badge {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0 1.5rem;
+    gap: 0;
+    overflow-x: auto;
+  }
+  nav button {
+    border: none;
+    background: none;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  nav button:hover { color: var(--text); background: var(--surface2); }
+  nav button.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+
+  /* ── MAIN LAYOUT ── */
+  .page-body { display: flex; align-items: flex-start; max-width: 1280px; margin: 0 auto; }
+  main { padding: 1.5rem; flex: 1; min-width: 0; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── SIDEBAR CLASSEMENT FLASH ── */
+  #sidebarRanking {
+    width: 220px;
+    flex-shrink: 0;
+    padding: 1.25rem 0.75rem 1.25rem 0;
+    position: sticky;
+    top: 57px;
+    max-height: calc(100vh - 57px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  #sidebarRanking::-webkit-scrollbar { width: 4px; }
+  #sidebarRanking::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .sidebar-header {
+    background: var(--green);
+    color: white;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sidebar-header span { font-size: 10px; opacity: 0.75; font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .sidebar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .sidebar-row:last-child { border-bottom: none; }
+  .sidebar-row:hover { background: var(--surface2); }
+  .sidebar-pos {
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sp-1 { background: #ffd700; color: #6b5000; }
+  .sp-2 { background: #c0c0c0; color: #444; }
+  .sp-3 { background: #cd7f32; color: white; }
+  .sp-n { background: var(--surface2); color: var(--text-muted); font-size: 10px; }
+  .sidebar-name {
+    font-size: 12px;
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sidebar-pts {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    background: var(--green-pale);
+    border-radius: 20px;
+    padding: 1px 7px;
+    flex-shrink: 0;
+  }
+  .sidebar-playing {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green-light);
+    flex-shrink: 0;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .sidebar-empty {
+    padding: 16px 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  /* Masquer sidebar sur onglet classement (inutile) et admin */
+  body.tab-classement #sidebarRanking,
+  body.tab-admin #sidebarRanking { display: none; }
+  /* Sur mobile: sidebar en bas */
+  @media (max-width: 900px) {
+    .page-body { flex-direction: column; }
+    #sidebarRanking {
+      width: 100%;
+      position: static;
+      max-height: none;
+      padding: 0 1rem 0.5rem;
+      order: -1;
+    }
+    .sidebar-card { display: flex; flex-wrap: wrap; }
+    .sidebar-header { width: 100%; }
+    .sidebar-row { width: calc(50% - 0px); border-right: 1px solid var(--border); }
+    .sidebar-row:nth-child(even) { border-right: none; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .ico { font-size: 1.1rem; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  @media (max-width: 700px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--green); color: white; }
+  .btn-primary:hover { background: #245a42; }
+  .btn-danger { background: var(--red-pale); color: var(--red); }
+  .btn-danger:hover { background: #f5c9ba; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-wood { background: var(--wood); color: white; }
+  .btn-wood:hover { background: #7a5233; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-icon { padding: 6px; border-radius: var(--radius-sm); }
+
+  /* ── FORM ELEMENTS ── */
+  input, select, textarea {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 14px;
+    background: var(--surface);
+    color: var(--text);
+    width: 100%;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(45,106,79,0.12); }
+  label { font-size: 13px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 4px; }
+  .form-group { margin-bottom: 12px; }
+  .form-row { display: flex; gap: 10px; align-items: flex-end; }
+  .form-row > * { flex: 1; }
+
+  /* ── CLASSEMENT ── */
+  .ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .ranking-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    background: var(--surface2);
+  }
+  .ranking-table th:not(:first-child) { text-align: center; }
+  .ranking-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .ranking-table td:not(:first-child):not(:nth-child(2)) { text-align: center; }
+  .ranking-table tr:hover td { background: var(--surface2); }
+  .ranking-table tr:last-child td { border-bottom: none; }
+
+  .rank-pos {
+    font-weight: 700;
+    font-size: 1rem;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .rank-1 { background: #ffd700; color: #6b5000; }
+  .rank-2 { background: #c0c0c0; color: #444; }
+  .rank-3 { background: #cd7f32; color: white; }
+  .rank-other { background: var(--surface2); color: var(--text-muted); font-size: 14px; }
+
+  .team-name { font-weight: 600; color: var(--text); }
+  .team-players { font-size: 12px; color: var(--text-muted); }
+  .pts-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--green-pale);
+    color: var(--green);
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 14px;
+    min-width: 50px;
+  }
+
+  /* match-card removed — résultat direct sur terrain */
+
+  /* ── STATUT TERRAIN ── */
+  .terrains-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 1.25rem; }
+  @media (max-width: 900px) { .terrains-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .terrains-grid { grid-template-columns: 1fr; } }
+
+  .terrain-slot {
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .terrain-slot.libre { border-color: var(--green-light); }
+  .terrain-slot.occupe { border-color: var(--wood-light); box-shadow: var(--shadow-md); }
+
+  .t-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .terrain-slot.libre .t-header { background: var(--green-pale); color: var(--green); }
+  .terrain-slot.occupe .t-header { background: var(--wood-pale); color: var(--wood); }
+  .t-header .t-elapsed { font-weight: 400; letter-spacing: 0; text-transform: none; opacity: 0.8; }
+
+  /* ── FILE D'ATTENTE ── */
+  .queue-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin: 0.5rem 0 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .queue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  .terrain-slot.queued {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+    opacity: 0.92;
+  }
+  .terrain-slot.queued .t-header { background: #fef3c7; color: var(--gold); }
+  .t-queue-badge {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .t-waiting-teams {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 6px 6px;
+  }
+  .t-libre-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .t-match-body { padding: 10px 10px 8px; }
+
+  .t-teams {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .t-win-btn {
+    flex: 1;
+    border: none;
+    background: var(--surface2);
+    cursor: pointer;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .t-win-btn:first-child { border-right: 1px solid var(--border); }
+  .t-win-btn:hover { background: var(--green-pale); }
+  .t-win-btn:active { transform: scale(0.97); background: var(--green-pale); }
+  .t-win-btn .tw-trophy { font-size: 16px; opacity: 0; transition: opacity 0.15s; }
+  .t-win-btn:hover .tw-trophy { opacity: 1; }
+  .t-win-btn .tw-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2; text-align: center; }
+  .t-win-btn .tw-sub { font-size: 10px; color: var(--text-muted); text-align: center; }
+
+  .t-vs-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    flex-shrink: 0;
+    background: var(--surface2);
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 0;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+
+  .t-hcap {
+    font-size: 10px;
+    color: var(--blue);
+    background: var(--blue-pale);
+    border-radius: 20px;
+    padding: 2px 8px;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .t-cancel-btn {
+    display: block;
+    width: 100%;
+    border: none;
+    background: none;
+    font-size: 10px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 3px;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    transition: color 0.15s, background 0.15s;
+  }
+  .t-cancel-btn:hover { color: var(--red); background: var(--red-pale); }
+
+  /* ── TAGS STATS ── */
+  .stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .stat-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-chip strong { color: var(--green); }
+
+  /* ── ÉQUIPES PANEL ── */
+  .team-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    margin-bottom: 8px;
+    transition: box-shadow 0.15s;
+  }
+  .team-row:hover { box-shadow: var(--shadow-md); }
+  .team-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--green-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .team-info { flex: 1; min-width: 0; }
+  .team-row-name { font-weight: 600; font-size: 14px; }
+  .team-row-players { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .team-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  /* ── HISTORIQUE ── */
+  .history-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .history-row:last-child { border-bottom: none; }
+  .win-badge { background: var(--green-pale); color: var(--green); border-radius: 20px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  .lose-badge { background: var(--red-pale); color: var(--red); border-radius: 20px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  .pts-earned { font-weight: 600; color: var(--green); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 1rem; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.25rem; }
+
+  /* ── ADMIN ── */
+  .admin-section { margin-bottom: 1.5rem; }
+  .admin-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); color: var(--wood); }
+  .param-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .param-row label { min-width: 200px; flex-shrink: 0; font-size: 13px; color: var(--text); margin: 0; }
+  .param-row input[type=range] { flex: 1; min-width: 120px; }
+  .param-val { min-width: 40px; font-weight: 600; color: var(--green); font-size: 14px; text-align: right; }
+
+  /* ── BADGES DIVERS ── */
+  .tag { display: inline-block; border-radius: 20px; padding: 2px 9px; font-size: 11px; font-weight: 600; }
+  .tag-green { background: var(--green-pale); color: var(--green); }
+  .tag-red { background: var(--red-pale); color: var(--red); }
+  .tag-blue { background: var(--blue-pale); color: var(--blue); }
+  .tag-gold { background: var(--gold-pale); color: var(--gold); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s;
+    pointer-events: none;
+    max-width: 300px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+  }
+  .empty .ico { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .empty p { font-size: 14px; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+  /* ── MATCH FORM ── */
+  .winner-btn {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .winner-btn:hover, .winner-btn.selected { border-color: var(--green); background: var(--green-pale); color: var(--green); }
+  .winner-btn.selected { box-shadow: 0 0 0 2px rgba(45,106,79,0.25); }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎯 Tournoi Mölkky</h1>
+  <span class="header-badge" id="headerStats">0 équipes</span>
+</header>
+
+<nav>
+  <button class="active" onclick="switchTab('classement')">🏆 Classement</button>
+  <button onclick="switchTab('matchs')">⚔️ Matchs</button>
+  <button onclick="switchTab('equipes')">👥 Équipes</button>
+  <button onclick="switchTab('historique')">📋 Historique</button>
+  <button onclick="switchTab('admin')">⚙️ Admin</button>
+</nav>
+
+<div class="page-body">
+
+<!-- ── SIDEBAR CLASSEMENT FLASH ── -->
+<aside id="sidebarRanking">
+  <div class="sidebar-card">
+    <div class="sidebar-header">🏆 Classement <span id="sidebarUpdated">—</span></div>
+    <div id="sidebarList"><div class="sidebar-empty">Aucune équipe</div></div>
+  </div>
+</aside>
+
+<main>
+
+<!-- ═══ CLASSEMENT ═══ -->
+<div id="tab-classement" class="tab-content active">
+  <div id="statRow" class="stat-row"></div>
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div id="rankingContainer"></div>
+  </div>
+</div>
+
+<!-- ═══ MATCHS ═══ -->
+<div id="tab-matchs" class="tab-content">
+  <div class="terrains-grid" id="terrainsGrid"></div>
+  <div id="queueSection"></div>
+
+  <div class="card">
+    <h2><span class="ico">➕</span> Lancer un match</h2>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Équipe A</label>
+        <select id="matchTeamA" onchange="updateHandicapPreview()">
+          <option value="">— Choisir —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Équipe B</label>
+        <select id="matchTeamB" onchange="updateHandicapPreview()">
+          <option value="">— Choisir —</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Handicap calculé</label>
+      <div id="handicapPreview" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; color: var(--text-muted); background: var(--surface2);">Sélectionner les équipes</div>
+    </div>
+    <button class="btn btn-primary" onclick="startMatch()">▶ Démarrer ce match</button>
+  </div>
+
+</div>
+
+<!-- ═══ ÉQUIPES ═══ -->
+<div id="tab-equipes" class="tab-content">
+  <div class="card">
+    <h2><span class="ico">✨</span> Nouvelle équipe</h2>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Nom de l'équipe</label>
+        <input type="text" id="teamName" placeholder="ex: Les Troncs" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>Joueur 1</label>
+        <input type="text" id="player1" placeholder="Prénom" maxlength="25">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Joueur 2</label>
+        <input type="text" id="player2" placeholder="Prénom" maxlength="25">
+      </div>
+      <div></div>
+    </div>
+    <button class="btn btn-primary" onclick="addTeam()">➕ Inscrire l'équipe</button>
+  </div>
+
+  <div class="card">
+    <h2><span class="ico">👥</span> Équipes inscrites (<span id="teamCount">0</span>)</h2>
+    <div id="teamsList"></div>
+  </div>
+</div>
+
+<!-- ═══ HISTORIQUE ═══ -->
+<div id="tab-historique" class="tab-content">
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 15px;">📋 Historique des matchs</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN ═══ -->
+<div id="tab-admin" class="tab-content">
+  <div class="card">
+    <h2><span class="ico">⚙️</span> Paramètres du système de points</h2>
+    
+    <div class="admin-section">
+      <h3>🏅 Points de base</h3>
+      <div class="param-row">
+        <label>Points pour une victoire (base)</label>
+        <input type="range" id="p_baseWin" min="5" max="30" step="1" oninput="updateParamDisplay(this,'v_baseWin')">
+        <span class="param-val" id="v_baseWin">10</span>
+      </div>
+      <div class="param-row">
+        <label>Bonus max (victoire contre le 1er)</label>
+        <input type="range" id="p_bonusMax" min="0" max="20" step="1" oninput="updateParamDisplay(this,'v_bonusMax')">
+        <span class="param-val" id="v_bonusMax">10</span>
+      </div>
+      <div class="param-row">
+        <label>Malus max (victoire contre le dernier)</label>
+        <input type="range" id="p_malusMax" min="0" max="10" step="1" oninput="updateParamDisplay(this,'v_malusMax')">
+        <span class="param-val" id="v_malusMax">5</span>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>🎯 Compensation au départ (handicap)</h3>
+      <div class="param-row">
+        <label>Activer le handicap au départ</label>
+        <input type="checkbox" id="p_handicapEnabled" style="width: auto;" onchange="saveParams()">
+      </div>
+      <div class="param-row">
+        <label>Écart de classement minimum pour déclencher le handicap</label>
+        <input type="range" id="p_handicapMinGap" min="1" max="10" step="1" oninput="updateParamDisplay(this,'v_handicapMinGap')">
+        <span class="param-val" id="v_handicapMinGap">3</span>
+      </div>
+      <div class="param-row">
+        <label>Handicap max (en points Mölkky)</label>
+        <input type="range" id="p_handicapMax" min="5" max="30" step="1" oninput="updateParamDisplay(this,'v_handicapMax')">
+        <span class="param-val" id="v_handicapMax">15</span>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+        Le handicap donne des points Mölkky de départ à l'équipe la plus faible, proportionnel à l'écart de classement. Ex : écart de 5 places sur 10 équipes = 50% du handicap max.
+      </p>
+    </div>
+
+    <div class="admin-section">
+      <h3>📊 Formule actuelle (aperçu)</h3>
+      <div id="formulaPreview" style="background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; font-size: 13px; line-height: 2;"></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer les paramètres</button>
+  </div>
+
+  <div class="card">
+    <h2><span class="ico">🗑️</span> Zone de danger</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn btn-danger" onclick="resetTournament()">🔄 Réinitialiser le tournoi (garder équipes)</button>
+      <button class="btn btn-danger" onclick="resetAll()">💣 Tout effacer</button>
+    </div>
+  </div>
+</div>
+
+</main>
+</div><!-- /page-body -->
+
+<!-- ── MODAL ÉDITION ÉQUIPE ── -->
+<div class="modal-overlay" id="editModal" style="display:none;">
+  <div class="modal">
+    <h3>✏️ Modifier l'équipe</h3>
+    <input type="hidden" id="editTeamId">
+    <div class="form-group">
+      <label>Nom de l'équipe</label>
+      <input type="text" id="editTeamName" maxlength="30">
+    </div>
+    <div class="form-group">
+      <label>Joueur 1</label>
+      <input type="text" id="editPlayer1" maxlength="25">
+    </div>
+    <div class="form-group">
+      <label>Joueur 2</label>
+      <input type="text" id="editPlayer2" maxlength="25">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('editModal')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveEditTeam()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL RÉSULTAT MATCH ── -->
+<div class="modal-overlay" id="resultModal" style="display:none;">
+  <div class="modal">
+    <h3>🏁 Résultat du match</h3>
+    <input type="hidden" id="resultMatchId">
+    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 1rem;" id="resultMatchDesc"></p>
+    <label style="margin-bottom: 8px; display: block;">Qui a gagné ?</label>
+    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+      <button class="winner-btn" id="winnerBtnA" onclick="selectWinner('A')"></button>
+      <button class="winner-btn" id="winnerBtnB" onclick="selectWinner('B')"></button>
+    </div>
+    <div id="pointsPreview" style="background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; display: none; margin-bottom: 1rem;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('resultModal')">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmResult()">✅ Valider le résultat</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let state = {
+  teams: [],        // { id, name, p1, p2, pts, wins, losses, matchesPlayed }
+  matches: [],      // historique
+  activeMatches: [], // matchs en cours { id, teamA, teamB, terrain, handicap, startTime }
+  params: {
+    baseWin: 10,
+    bonusMax: 10,
+    malusMax: 5,
+    handicapEnabled: true,
+    handicapMinGap: 3,
+    handicapMax: 15
+  }
+};
+let selectedWinner = null;
+
+// ═══════════════════════════════════════
+//  PERSISTENCE
+// ═══════════════════════════════════════
+function save() {
+  localStorage.setItem('molkky_state', JSON.stringify(state));
+}
+function load() {
+  const raw = localStorage.getItem('molkky_state');
+  if (raw) {
+    try { state = { ...state, ...JSON.parse(raw) }; } catch(e) {}
+  }
+}
+
+// ═══════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabs = ['classement','matchs','equipes','historique','admin'];
+  const navBtns = document.querySelectorAll('nav button');
+  navBtns[tabs.indexOf(name)].classList.add('active');
+  // Sync body class for sidebar visibility
+  document.body.className = 'tab-' + name;
+  renderAll();
+}
+
+// ═══════════════════════════════════════
+//  TEAMS
+// ═══════════════════════════════════════
+function addTeam() {
+  const name = document.getElementById('teamName').value.trim();
+  const p1 = document.getElementById('player1').value.trim();
+  const p2 = document.getElementById('player2').value.trim();
+  if (!name || !p1 || !p2) { toast('Remplis tous les champs !'); return; }
+  if (state.teams.find(t => t.name.toLowerCase() === name.toLowerCase())) {
+    toast('Ce nom d\'équipe existe déjà !'); return;
+  }
+  state.teams.push({ id: Date.now(), name, p1, p2, pts: 0, wins: 0, losses: 0, matchesPlayed: 0 });
+  save();
+  document.getElementById('teamName').value = '';
+  document.getElementById('player1').value = '';
+  document.getElementById('player2').value = '';
+  toast(`✅ ${name} inscrite !`);
+  renderAll();
+}
+
+function deleteTeam(id) {
+  if (!confirm('Supprimer cette équipe ?')) return;
+  state.teams = state.teams.filter(t => t.id !== id);
+  state.activeMatches = state.activeMatches.filter(m => m.teamA !== id && m.teamB !== id);
+  save();
+  toast('Équipe supprimée');
+  renderAll();
+}
+
+function openEditModal(id) {
+  const t = state.teams.find(t => t.id === id);
+  if (!t) return;
+  document.getElementById('editTeamId').value = id;
+  document.getElementById('editTeamName').value = t.name;
+  document.getElementById('editPlayer1').value = t.p1;
+  document.getElementById('editPlayer2').value = t.p2;
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function saveEditTeam() {
+  const id = parseInt(document.getElementById('editTeamId').value);
+  const name = document.getElementById('editTeamName').value.trim();
+  const p1 = document.getElementById('editPlayer1').value.trim();
+  const p2 = document.getElementById('editPlayer2').value.trim();
+  if (!name || !p1 || !p2) { toast('Remplis tous les champs !'); return; }
+  const t = state.teams.find(t => t.id === id);
+  if (!t) return;
+  t.name = name; t.p1 = p1; t.p2 = p2;
+  save();
+  closeModal('editModal');
+  toast('✅ Équipe modifiée');
+  renderAll();
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+// ═══════════════════════════════════════
+//  CLASSEMENT & POINTS
+// ═══════════════════════════════════════
+function getRanking() {
+  return [...state.teams].sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.wins !== a.wins) return b.wins - a.wins;
+    return a.losses - b.losses;
+  });
+}
+
+function getRankOf(id) {
+  return getRanking().findIndex(t => t.id === id);
+}
+
+// Calcul de points pour une victoire : basé sur la position relative de l'adversaire
+function calcPoints(winnerRank, loserRank, totalTeams) {
+  const p = state.params;
+  if (totalTeams < 2) return p.baseWin;
+  // Position normalisée de l'adversaire (0 = dernier, 1 = premier)
+  const loserNorm = (totalTeams - 1 - loserRank) / Math.max(1, totalTeams - 1);
+  // Bonus/malus proportionnel
+  const delta = loserNorm < 0.5
+    ? -p.malusMax * (1 - loserNorm * 2)
+    : p.bonusMax * ((loserNorm - 0.5) * 2);
+  return Math.round(p.baseWin + delta);
+}
+
+// Calcul du handicap en points Mölkky
+function calcHandicap(strongerRank, weakerRank, totalTeams) {
+  const p = state.params;
+  if (!p.handicapEnabled || totalTeams < 2) return 0;
+  const gap = Math.abs(strongerRank - weakerRank);
+  if (gap < p.handicapMinGap) return 0;
+  const maxGap = totalTeams - 1;
+  const ratio = Math.min(gap / maxGap, 1);
+  return Math.round(p.handicapMax * ratio);
+}
+
+// ═══════════════════════════════════════
+//  MATCHS
+// ═══════════════════════════════════════
+function updateHandicapPreview() {
+  const idA = parseInt(document.getElementById('matchTeamA').value);
+  const idB = parseInt(document.getElementById('matchTeamB').value);
+  const preview = document.getElementById('handicapPreview');
+  if (!idA || !idB) { preview.textContent = 'Sélectionner les équipes'; return; }
+  if (idA === idB) { preview.textContent = 'Choisir deux équipes différentes'; return; }
+  const rankA = getRankOf(idA);
+  const rankB = getRankOf(idB);
+  const n = state.teams.length;
+  const strongerRank = Math.min(rankA, rankB);
+  const weakerRank = Math.max(rankA, rankB);
+  const hcap = calcHandicap(strongerRank, weakerRank, n);
+  const teamA = state.teams.find(t => t.id === idA);
+  const teamB = state.teams.find(t => t.id === idB);
+  const weakerTeam = rankA > rankB ? teamA : teamB;
+  if (hcap === 0) {
+    preview.innerHTML = `<span style="color:var(--green);">Pas de handicap</span> (niveaux proches)`;
+  } else {
+    preview.innerHTML = `<strong>${weakerTeam.name}</strong> démarre à <strong style="color:var(--blue);">${hcap} pts</strong>`;
+  }
+}
+
+function getFreeTerrain() {
+  const used = new Set(state.activeMatches.filter(m => m.terrain).map(m => m.terrain));
+  for (let i = 1; i <= 4; i++) { if (!used.has(i)) return i; }
+  return null; // tous occupés → file d'attente
+}
+
+function startMatch() {
+  const idA = parseInt(document.getElementById('matchTeamA').value);
+  const idB = parseInt(document.getElementById('matchTeamB').value);
+  if (!idA || !idB) { toast('Sélectionner deux équipes !'); return; }
+  if (idA === idB) { toast('Deux équipes différentes svp !'); return; }
+  if (state.activeMatches.some(m => m.teamA === idA || m.teamB === idA || m.teamA === idB || m.teamB === idB)) {
+    toast('Une de ces équipes est déjà en match ou en attente !'); return;
+  }
+  const rankA = getRankOf(idA);
+  const rankB = getRankOf(idB);
+  const n = state.teams.length;
+  const strongerRank = Math.min(rankA, rankB);
+  const weakerRank = Math.max(rankA, rankB);
+  const hcap = calcHandicap(strongerRank, weakerRank, n);
+  const weakerIsA = rankA > rankB;
+  const terrain = getFreeTerrain(); // null = en attente
+
+  state.activeMatches.push({
+    id: Date.now(),
+    teamA: idA, teamB: idB,
+    terrain,   // null si file d'attente
+    handicap: hcap,
+    handicapFor: weakerIsA ? 'A' : 'B',
+    startTime: terrain ? Date.now() : null,
+    queued: !terrain
+  });
+  save();
+  toast(terrain ? `⚔️ Match lancé sur terrain ${terrain} !` : `⏳ Match en file d'attente !`);
+  renderAll();
+}
+
+// Quand un terrain se libère, on promotionne le premier match en attente
+function promoteQueued() {
+  const terrain = getFreeTerrain();
+  if (!terrain) return;
+  const waiting = state.activeMatches.find(m => m.queued);
+  if (!waiting) return;
+  waiting.terrain = terrain;
+  waiting.queued = false;
+  waiting.startTime = Date.now();
+  save();
+  const tA = state.teams.find(t => t.id === waiting.teamA);
+  const tB = state.teams.find(t => t.id === waiting.teamB);
+  toast(`🟢 ${tA?.name} vs ${tB?.name} → Terrain ${terrain} !`);
+}
+
+function openResultModal(matchId) {
+  const m = state.activeMatches.find(x => x.id === matchId);
+  if (!m) return;
+  const tA = state.teams.find(t => t.id === m.teamA);
+  const tB = state.teams.find(t => t.id === m.teamB);
+  selectedWinner = null;
+  document.getElementById('resultMatchId').value = matchId;
+  document.getElementById('resultMatchDesc').textContent = `${tA.name} vs ${tB.name} — Terrain ${m.terrain}`;
+  document.getElementById('winnerBtnA').textContent = `🏆 ${tA.name}`;
+  document.getElementById('winnerBtnB').textContent = `🏆 ${tB.name}`;
+  document.getElementById('winnerBtnA').classList.remove('selected');
+  document.getElementById('winnerBtnB').classList.remove('selected');
+  document.getElementById('pointsPreview').style.display = 'none';
+  document.getElementById('resultModal').style.display = 'flex';
+}
+
+function selectWinner(side) {
+  selectedWinner = side;
+  document.getElementById('winnerBtnA').classList.toggle('selected', side === 'A');
+  document.getElementById('winnerBtnB').classList.toggle('selected', side === 'B');
+  // aperçu des points
+  const matchId = parseInt(document.getElementById('resultMatchId').value);
+  const m = state.activeMatches.find(x => x.id === matchId);
+  const tA = state.teams.find(t => t.id === m.teamA);
+  const tB = state.teams.find(t => t.id === m.teamB);
+  const rankA = getRankOf(m.teamA);
+  const rankB = getRankOf(m.teamB);
+  const n = state.teams.length;
+  let winnerTeam, loserTeam, winnerRank, loserRank;
+  if (side === 'A') {
+    winnerTeam = tA; loserTeam = tB; winnerRank = rankA; loserRank = rankB;
+  } else {
+    winnerTeam = tB; loserTeam = tA; winnerRank = rankB; loserRank = rankA;
+  }
+  const pts = calcPoints(winnerRank, loserRank, n);
+  const prev = document.getElementById('pointsPreview');
+  prev.style.display = 'block';
+  prev.innerHTML = `<strong>${winnerTeam.name}</strong> gagne <strong style="color:var(--green);">+${pts} pts</strong> (victoire contre la place ${loserRank + 1})`;
+}
+
+function confirmResult() {
+  if (!selectedWinner) { toast('Sélectionner un vainqueur !'); return; }
+  const matchId = parseInt(document.getElementById('resultMatchId').value);
+  const m = state.activeMatches.find(x => x.id === matchId);
+  if (!m) return;
+  const tA = state.teams.find(t => t.id === m.teamA);
+  const tB = state.teams.find(t => t.id === m.teamB);
+  const rankA = getRankOf(m.teamA);
+  const rankB = getRankOf(m.teamB);
+  const n = state.teams.length;
+  let winnerId, loserId, winnerRank, loserRank;
+  if (selectedWinner === 'A') {
+    winnerId = m.teamA; loserId = m.teamB; winnerRank = rankA; loserRank = rankB;
+  } else {
+    winnerId = m.teamB; loserId = m.teamA; winnerRank = rankB; loserRank = rankA;
+  }
+  const pts = calcPoints(winnerRank, loserRank, n);
+  const winner = state.teams.find(t => t.id === winnerId);
+  const loser = state.teams.find(t => t.id === loserId);
+  winner.pts += pts;
+  winner.wins += 1;
+  winner.matchesPlayed += 1;
+  loser.losses += 1;
+  loser.matchesPlayed += 1;
+  const duration = Math.round((Date.now() - m.startTime) / 60000);
+  state.matches.unshift({
+    id: Date.now(),
+    winnerId, loserId,
+    winnerName: winner.name,
+    loserName: loser.name,
+    ptsEarned: pts,
+    terrain: m.terrain,
+    handicap: m.handicap,
+    handicapFor: m.handicapFor,
+    duration,
+    date: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  });
+  state.activeMatches = state.activeMatches.filter(x => x.id !== matchId);
+  save();
+  closeModal('resultModal');
+  toast(`✅ ${winner.name} gagne +${pts} pts !`);
+  renderAll();
+}
+
+function cancelMatch(matchId) {
+  if (!confirm('Annuler ce match ?')) return;
+  state.activeMatches = state.activeMatches.filter(m => m.id !== matchId);
+  promoteQueued();
+  save();
+  toast('Match annulé');
+  renderAll();
+}
+
+function quickWin(matchId, side) {
+  const m = state.activeMatches.find(x => x.id === matchId);
+  if (!m) return;
+  const tA = state.teams.find(t => t.id === m.teamA);
+  const tB = state.teams.find(t => t.id === m.teamB);
+  const winnerTeam = side === 'A' ? tA : tB;
+  const loserTeam  = side === 'A' ? tB : tA;
+  if (!confirm(`🏆 Victoire de ${winnerTeam.name} ?`)) return;
+  const rankA = getRankOf(m.teamA);
+  const rankB = getRankOf(m.teamB);
+  const n = state.teams.length;
+  const winnerRank = side === 'A' ? rankA : rankB;
+  const loserRank  = side === 'A' ? rankB : rankA;
+  const pts = calcPoints(winnerRank, loserRank, n);
+  const duration = Math.round((Date.now() - m.startTime) / 60000);
+  winnerTeam.pts += pts;
+  winnerTeam.wins += 1;
+  winnerTeam.matchesPlayed += 1;
+  loserTeam.losses += 1;
+  loserTeam.matchesPlayed += 1;
+  state.matches.unshift({
+    id: Date.now(),
+    winnerId: winnerTeam.id, loserId: loserTeam.id,
+    winnerName: winnerTeam.name, loserName: loserTeam.name,
+    ptsEarned: pts, terrain: m.terrain,
+    handicap: m.handicap, handicapFor: m.handicapFor,
+    duration, date: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  });
+  state.activeMatches = state.activeMatches.filter(x => x.id !== matchId);
+  promoteQueued();
+  save();
+  toast(`🏆 ${winnerTeam.name} gagne +${pts} pts !`);
+  renderAll();
+}
+
+// ═══════════════════════════════════════
+//  PARAMS ADMIN
+// ═══════════════════════════════════════
+function updateParamDisplay(el, valId) {
+  document.getElementById(valId).textContent = el.value;
+  updateFormulaPreview();
+  saveParams();
+}
+
+function saveParams() {
+  state.params = {
+    baseWin: parseInt(document.getElementById('p_baseWin').value),
+    bonusMax: parseInt(document.getElementById('p_bonusMax').value),
+    malusMax: parseInt(document.getElementById('p_malusMax').value),
+    handicapEnabled: document.getElementById('p_handicapEnabled').checked,
+    handicapMinGap: parseInt(document.getElementById('p_handicapMinGap').value),
+    handicapMax: parseInt(document.getElementById('p_handicapMax').value)
+  };
+  save();
+  updateFormulaPreview();
+  toast('Paramètres sauvegardés');
+}
+
+function updateFormulaPreview() {
+  const p = state.params;
+  const n = state.teams.length || 10;
+  const min = p.baseWin - p.malusMax;
+  const max = p.baseWin + p.bonusMax;
+  document.getElementById('formulaPreview').innerHTML = `
+    Victoire contre le 1er : <strong>+${max} pts</strong><br>
+    Victoire contre une équipe du même niveau : <strong>+${p.baseWin} pts</strong><br>
+    Victoire contre le dernier : <strong>+${min} pts</strong><br>
+    ${p.handicapEnabled
+      ? `Handicap : activé — déclenchement à partir de <strong>${p.handicapMinGap}</strong> places d'écart, max <strong>${p.handicapMax} pts Mölkky</strong>`
+      : 'Handicap : <span style="color:var(--red)">désactivé</span>'}
+  `;
+}
+
+function resetTournament() {
+  if (!confirm('Réinitialiser les scores et matchs ? (les équipes sont conservées)')) return;
+  state.teams = state.teams.map(t => ({ ...t, pts: 0, wins: 0, losses: 0, matchesPlayed: 0 }));
+  state.matches = [];
+  state.activeMatches = [];
+  save();
+  toast('🔄 Tournoi réinitialisé');
+  renderAll();
+}
+
+function resetAll() {
+  if (!confirm('Tout supprimer ? Cette action est irréversible.')) return;
+  state = { teams: [], matches: [], activeMatches: [], params: state.params };
+  save();
+  toast('💣 Données effacées');
+  renderAll();
+}
+
+// ═══════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════
+function renderAll() {
+  renderHeader();
+  renderRanking();
+  renderSidebar();
+  renderMatchTab();
+  renderTeams();
+  renderHistory();
+  renderAdmin();
+}
+
+function renderSidebar() {
+  const ranking = getRanking();
+  const now = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('sidebarUpdated').textContent = now;
+  if (ranking.length === 0) {
+    document.getElementById('sidebarList').innerHTML = '<div class="sidebar-empty">Aucune équipe inscrite</div>';
+    return;
+  }
+  let html = '';
+  ranking.forEach((t, i) => {
+    const pos = i + 1;
+    const posClass = pos <= 3 ? 'sp-' + pos : 'sp-n';
+    const inMatch = state.activeMatches.some(m => m.teamA === t.id || m.teamB === t.id);
+    html += '<div class="sidebar-row">'
+      + '<span class="sidebar-pos ' + posClass + '">' + pos + '</span>'
+      + '<span class="sidebar-name">' + esc(t.name) + '</span>'
+      + (inMatch ? '<span class="sidebar-playing" title="En match"></span>' : '')
+      + '<span class="sidebar-pts">' + t.pts + '</span>'
+      + '</div>';
+  });
+  document.getElementById('sidebarList').innerHTML = html;
+}
+
+function renderHeader() {
+  const n = state.teams.length;
+  document.getElementById('headerStats').textContent = `${n} équipe${n !== 1 ? 's' : ''} · ${state.activeMatches.length} match${state.activeMatches.length !== 1 ? 's' : ''} en cours`;
+}
+
+function renderRanking() {
+  const ranking = getRanking();
+  const statRow = document.getElementById('statRow');
+  const n = state.teams.length;
+  const totalMatches = state.matches.length;
+  statRow.innerHTML = `
+    <div class="stat-chip">👥 <strong>${n}</strong> équipes</div>
+    <div class="stat-chip">⚔️ <strong>${totalMatches}</strong> matchs joués</div>
+    <div class="stat-chip">🎯 <strong>${state.activeMatches.length}</strong> en cours</div>
+    <div class="stat-chip">🏟️ <strong>${4 - state.activeMatches.length}</strong> terrain${4 - state.activeMatches.length !== 1 ? 's' : ''} libre${4 - state.activeMatches.length !== 1 ? 's' : ''}</div>
+  `;
+  if (ranking.length === 0) {
+    document.getElementById('rankingContainer').innerHTML = `<div class="empty"><div class="ico">🎯</div><p>Inscris des équipes pour voir le classement !</p></div>`;
+    return;
+  }
+  let html = `<table class="ranking-table"><thead><tr>
+    <th style="width:50px;">Pos.</th>
+    <th>Équipe</th>
+    <th>Points</th>
+    <th>V</th><th>D</th><th>J</th>
+  </tr></thead><tbody>`;
+  ranking.forEach((t, i) => {
+    const pos = i + 1;
+    let posClass = pos <= 3 ? `rank-${pos}` : 'rank-other';
+    let posLabel = pos;
+    let inMatch = state.activeMatches.some(m => m.teamA === t.id || m.teamB === t.id);
+    html += `<tr>
+      <td><span class="rank-pos ${posClass}">${posLabel}</span></td>
+      <td>
+        <div class="team-name">${esc(t.name)}${inMatch ? ' <span class="tag tag-green" style="font-size:10px;">⚔️ en jeu</span>' : ''}</div>
+        <div class="team-players">${esc(t.p1)} & ${esc(t.p2)}</div>
+      </td>
+      <td><span class="pts-badge">${t.pts}</span></td>
+      <td style="color:var(--green);font-weight:600;">${t.wins}</td>
+      <td style="color:var(--red);">${t.losses}</td>
+      <td style="color:var(--text-muted);">${t.matchesPlayed}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('rankingContainer').innerHTML = html;
+}
+
+function matchCardHtml(m, label, isQueued) {
+  const tA = state.teams.find(t => t.id === m.teamA);
+  const tB = state.teams.find(t => t.id === m.teamB);
+  const rankA = getRankOf(m.teamA) + 1;
+  const rankB = getRankOf(m.teamB) + 1;
+  const elapsed = m.startTime ? Math.round((Date.now() - m.startTime) / 60000) : 0;
+  const hcapLabel = m.handicap > 0
+    ? `🎯 ${m.handicapFor === 'A' ? esc(tA?.name) : esc(tB?.name)} démarre à ${m.handicap} pts`
+    : '';
+  const headerRight = isQueued
+    ? `<span class="t-queue-badge">⏳ En attente</span>`
+    : `<span class="t-elapsed">⏱ ${elapsed} min</span>`;
+  const winBtns = isQueued ? '' : `
+    <div class="t-teams">
+      <button class="t-win-btn" onclick="quickWin(${m.id},'A')" title="Victoire ${esc(tA?.name)}">
+        <span class="tw-trophy">🏆</span>
+        <span class="tw-name">${esc(tA?.name || '?')}</span>
+        <span class="tw-sub">#${rankA} · ${tA?.pts || 0} pts</span>
+      </button>
+      <div class="t-vs-divider">VS</div>
+      <button class="t-win-btn" onclick="quickWin(${m.id},'B')" title="Victoire ${esc(tB?.name)}">
+        <span class="tw-trophy">🏆</span>
+        <span class="tw-name">${esc(tB?.name || '?')}</span>
+        <span class="tw-sub">#${rankB} · ${tB?.pts || 0} pts</span>
+      </button>
+    </div>`;
+  const waitingNames = isQueued ? `
+    <div class="t-waiting-teams">
+      <span class="tw-name">${esc(tA?.name || '?')}</span>
+      <span style="color:var(--text-muted);font-size:11px;">vs</span>
+      <span class="tw-name">${esc(tB?.name || '?')}</span>
+    </div>` : '';
+  return `<div class="terrain-slot ${isQueued ? 'queued' : 'occupe'}">
+    <div class="t-header">
+      <span>${label}</span>
+      ${headerRight}
+    </div>
+    <div class="t-match-body">
+      ${hcapLabel ? `<div class="t-hcap">${hcapLabel}</div>` : ''}
+      ${winBtns}${waitingNames}
+      <button class="t-cancel-btn" onclick="cancelMatch(${m.id})">✕ Annuler</button>
+    </div>
+  </div>`;
+}
+
+function renderMatchTab() {
+  // ── Grille terrains (4 fixes) + file d'attente ──
+  const playing = state.activeMatches.filter(m => !m.queued);
+  const queued  = state.activeMatches.filter(m => m.queued);
+
+  let terrainsHtml = '';
+  for (let i = 1; i <= 4; i++) {
+    const m = playing.find(x => x.terrain === i);
+    if (m) {
+      terrainsHtml += matchCardHtml(m, `Terrain ${i}`, false);
+    } else {
+      terrainsHtml += `<div class="terrain-slot libre">
+        <div class="t-header"><span>Terrain ${i}</span></div>
+        <div class="t-libre-body">✅ Libre</div>
+      </div>`;
+    }
+  }
+  document.getElementById('terrainsGrid').innerHTML = terrainsHtml;
+
+  // ── File d'attente ──
+  const queueEl = document.getElementById('queueSection');
+  if (queued.length === 0) {
+    queueEl.innerHTML = '';
+  } else {
+    let qHtml = `<div class="queue-title">⏳ File d'attente (${queued.length})</div><div class="queue-grid">`;
+    queued.forEach((m, idx) => {
+      qHtml += matchCardHtml(m, `Match #${idx + 1}`, true);
+    });
+    qHtml += '</div>';
+    queueEl.innerHTML = qHtml;
+  }
+
+  // ── Selects équipes ──
+  const selA = document.getElementById('matchTeamA');
+  const selB = document.getElementById('matchTeamB');
+  const busyIds = new Set(state.activeMatches.flatMap(m => [m.teamA, m.teamB]));
+  const ranking = getRanking();
+  let opts = '<option value="">— Choisir —</option>';
+  ranking.forEach(t => {
+    const busy = busyIds.has(t.id) ? ' ⚔️' : '';
+    opts += `<option value="${t.id}"${busyIds.has(t.id) ? ' disabled' : ''}>${esc(t.name)}${busy} (${t.pts} pts)</option>`;
+  });
+  const prevA = selA.value, prevB = selB.value;
+  selA.innerHTML = opts; selB.innerHTML = opts;
+  selA.value = prevA; selB.value = prevB;
+}
+
+function renderTeams() {
+  const ranking = getRanking();
+  document.getElementById('teamCount').textContent = state.teams.length;
+  if (state.teams.length === 0) {
+    document.getElementById('teamsList').innerHTML = `<div class="empty"><div class="ico">👥</div><p>Aucune équipe inscrite.</p></div>`;
+    return;
+  }
+  let html = '';
+  ranking.forEach((t, i) => {
+    const pos = i + 1;
+    const posLabel = pos <= 3 ? ['🥇','🥈','🥉'][pos-1] : `#${pos}`;
+    html += `<div class="team-row">
+      <div class="team-avatar">${posLabel}</div>
+      <div class="team-info">
+        <div class="team-row-name">${esc(t.name)}</div>
+        <div class="team-row-players">${esc(t.p1)} & ${esc(t.p2)} · ${t.pts} pts · ${t.wins}V ${t.losses}D</div>
+      </div>
+      <div class="team-row-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openEditModal(${t.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTeam(${t.id})">🗑️</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('teamsList').innerHTML = html;
+}
+
+function renderHistory() {
+  if (state.matches.length === 0) {
+    document.getElementById('historyList').innerHTML = `<div class="empty"><div class="ico">📋</div><p>Aucun match terminé pour l'instant.</p></div>`;
+    return;
+  }
+  let html = '';
+  state.matches.forEach(m => {
+    html += `<div class="history-row">
+      <span style="color:var(--text-muted);min-width:40px;font-size:12px;">${m.date}</span>
+      <span class="win-badge">V</span>
+      <strong>${esc(m.winnerName)}</strong>
+      <span style="color:var(--text-muted);">vs</span>
+      <span>${esc(m.loserName)}</span>
+      <span class="lose-badge">D</span>
+      <span style="flex:1"></span>
+      <span class="pts-earned">+${m.ptsEarned} pts</span>
+      <span style="font-size:11px;color:var(--text-muted);">T${m.terrain}</span>
+      ${m.handicap > 0 ? `<span class="tag tag-blue" style="font-size:10px;">🎯 hdcp ${m.handicap}</span>` : ''}
+    </div>`;
+  });
+  document.getElementById('historyList').innerHTML = html;
+}
+
+function renderAdmin() {
+  const p = state.params;
+  document.getElementById('p_baseWin').value = p.baseWin;
+  document.getElementById('v_baseWin').textContent = p.baseWin;
+  document.getElementById('p_bonusMax').value = p.bonusMax;
+  document.getElementById('v_bonusMax').textContent = p.bonusMax;
+  document.getElementById('p_malusMax').value = p.malusMax;
+  document.getElementById('v_malusMax').textContent = p.malusMax;
+  document.getElementById('p_handicapEnabled').checked = p.handicapEnabled;
+  document.getElementById('p_handicapMinGap').value = p.handicapMinGap;
+  document.getElementById('v_handicapMinGap').textContent = p.handicapMinGap;
+  document.getElementById('p_handicapMax').value = p.handicapMax;
+  document.getElementById('v_handicapMax').textContent = p.handicapMax;
+  updateFormulaPreview();
+}
+
+// ═══════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// Fermer modales en cliquant à l'extérieur
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.style.display = 'none';
+  });
+});
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+load();
+document.body.className = 'tab-classement';
+renderAll();
+
+// Rafraîchir les timers toutes les minutes
+setInterval(() => {
+  if (state.activeMatches.length > 0) renderMatchTab();
+}, 60000);
+</script>
+</body>
+</html>
